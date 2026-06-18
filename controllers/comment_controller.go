@@ -13,6 +13,15 @@ type CommentController struct {
 	beego.Controller
 }
 
+// GetByTutorialId
+// @Title Listar comentarios de un tutorial
+// @Description Obtiene todos los comentarios de un tutorial
+// @Param tutorialId path int true "ID del tutorial"
+// @Success 200 {object} dtos.CommentListResponse
+// @Failure 400 {object} dtos.ErrorResponse
+// @Failure 404 {object} dtos.ErrorResponse
+// @Failure 500 {object} dtos.ErrorResponse
+// @router /tutorials/:tutorialId/comments [get]
 func (c *CommentController) GetByTutorialId() {
 	tutorialId, err := parseID(c.Ctx.Input.Param(":tutorialId"))
 	if err != nil {
@@ -29,6 +38,16 @@ func (c *CommentController) GetByTutorialId() {
 	respondJSON(&c.Controller, http.StatusOK, toCommentListResponse(comments))
 }
 
+// Create
+// @Title Crear comentario
+// @Description Crea un comentario asociado a un tutorial
+// @Param tutorialId path int true "ID del tutorial"
+// @Param body body dtos.CreateCommentRequest true "Datos del comentario"
+// @Success 201 {object} dtos.CommentResponse
+// @Failure 400 {object} dtos.ErrorResponse
+// @Failure 404 {object} dtos.ErrorResponse
+// @Failure 500 {object} dtos.ErrorResponse
+// @router /tutorials/:tutorialId/comments [post]
 func (c *CommentController) Create() {
 	tutorialId, err := parseID(c.Ctx.Input.Param(":tutorialId"))
 	if err != nil {
@@ -51,6 +70,16 @@ func (c *CommentController) Create() {
 	respondJSON(&c.Controller, http.StatusCreated, toCommentResponse(comment))
 }
 
+// Update
+// @Title Actualizar comentario
+// @Description Actualiza el contenido de un comentario
+// @Param id path int true "ID del comentario"
+// @Param body body dtos.UpdateCommentRequest true "Datos del comentario"
+// @Success 200 {object} dtos.CommentResponse
+// @Failure 400 {object} dtos.ErrorResponse
+// @Failure 404 {object} dtos.ErrorResponse
+// @Failure 500 {object} dtos.ErrorResponse
+// @router /comments/:id [put]
 func (c *CommentController) Update() {
 	id, err := parseID(c.Ctx.Input.Param(":id"))
 	if err != nil {
@@ -73,6 +102,15 @@ func (c *CommentController) Update() {
 	respondJSON(&c.Controller, http.StatusOK, toCommentResponse(comment))
 }
 
+// Delete
+// @Title Eliminar comentario
+// @Description Elimina un comentario por ID
+// @Param id path int true "ID del comentario"
+// @Success 204 "No Content"
+// @Failure 400 {object} dtos.ErrorResponse
+// @Failure 404 {object} dtos.ErrorResponse
+// @Failure 500 {object} dtos.ErrorResponse
+// @router /comments/:id [delete]
 func (c *CommentController) Delete() {
 	id, err := parseID(c.Ctx.Input.Param(":id"))
 	if err != nil {

@@ -32,5 +32,10 @@ func main() {
 	commentSvc := services.NewCommentService(commentRepo, tutorialRepo)
 	controllers.Init(tutorialSvc, commentSvc)
 
+	if beego.BConfig.RunMode == "dev" {
+		beego.BConfig.WebConfig.DirectoryIndex = true
+		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+	}
+
 	beego.Run()
 }
