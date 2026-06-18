@@ -110,7 +110,7 @@
                 "tags": [
                     "oati-crud-comentarios/controllersTutorialController"
                 ],
-                "description": "Crea un nuevo tutorial\n\u003cbr\u003e",
+                "description": "Crea un nuevo tutorial. published_at debe estar en formato RFC3339 (ej: 2026-06-18T00:00:00Z)\n\u003cbr\u003e",
                 "operationId": "TutorialController.Crear tutorial",
                 "parameters": [
                     {
@@ -351,10 +351,14 @@
             "type": "object",
             "properties": {
                 "content": {
-                    "type": "string"
+                    "description": "Contenido del comentario",
+                    "type": "string",
+                    "example": "Comentario de prueba"
                 },
                 "created_at": {
+                    "description": "Fecha de creación del comentario",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 },
                 "id": {
@@ -362,11 +366,15 @@
                     "format": "int64"
                 },
                 "tutorial_id": {
+                    "description": "ID del tutorial",
                     "type": "integer",
+                    "example": 1,
                     "format": "int64"
                 },
                 "updated_at": {
+                    "description": "Fecha de actualización del comentario",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 }
             }
@@ -385,13 +393,19 @@
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
+                    "description": "Descripción del tutorial",
+                    "type": "string",
+                    "example": "Descripción del tutorial"
                 },
                 "published_at": {
-                    "type": "string"
+                    "description": "Fecha de publicación del tutorial",
+                    "type": "string",
+                    "example": "2026-06-18T00:00:00Z"
                 },
                 "title": {
-                    "type": "string"
+                    "description": "Título del tutorial",
+                    "type": "string",
+                    "example": "Tutorial de prueba"
                 }
             }
         },
@@ -406,25 +420,35 @@
                     }
                 },
                 "created_at": {
+                    "description": "Fecha de creación del tutorial",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 },
                 "description": {
-                    "type": "string"
+                    "description": "Descripción del tutorial",
+                    "type": "string",
+                    "example": "Descripción del tutorial"
                 },
                 "id": {
                     "type": "integer",
                     "format": "int64"
                 },
                 "published_at": {
+                    "description": "Fecha de publicación del tutorial",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 },
                 "title": {
-                    "type": "string"
+                    "description": "Título del tutorial",
+                    "type": "string",
+                    "example": "Tutorial de prueba"
                 },
                 "updated_at": {
+                    "description": "Fecha de actualización del tutorial",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 }
             }
@@ -450,25 +474,35 @@
             "type": "object",
             "properties": {
                 "created_at": {
+                    "description": "Fecha de creación del tutorial",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 },
                 "description": {
-                    "type": "string"
+                    "description": "Descripción del tutorial",
+                    "type": "string",
+                    "example": "Descripción del tutorial"
                 },
                 "id": {
                     "type": "integer",
                     "format": "int64"
                 },
                 "published_at": {
+                    "description": "Fecha de publicación del tutorial",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 },
                 "title": {
-                    "type": "string"
+                    "description": "Título del tutorial",
+                    "type": "string",
+                    "example": "Tutorial de prueba"
                 },
                 "updated_at": {
+                    "description": "Fecha de actualización del tutorial",
                     "type": "string",
+                    "example": "2026-06-18T00:00:00Z",
                     "format": "datetime"
                 }
             }
@@ -487,13 +521,19 @@
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
+                    "description": "Descripción del tutorial",
+                    "type": "string",
+                    "example": "Descripción del tutorial"
                 },
                 "published_at": {
-                    "type": "string"
+                    "description": "Fecha de publicación del tutorial",
+                    "type": "string",
+                    "example": "2026-06-18T00:00:00Z"
                 },
                 "title": {
-                    "type": "string"
+                    "description": "Título del tutorial",
+                    "type": "string",
+                    "example": "Tutorial de prueba"
                 }
             }
         }
