@@ -8,4 +8,5 @@ type CommentRepository interface {
 	Create(comment *domain.Comment) error
 	Update(comment *domain.Comment) error
 	Delete(id int) error
+	SoftDeleteByTutorialId(tutorialId int) error
 }

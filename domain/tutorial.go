@@ -9,6 +9,7 @@ type Tutorial struct {
 	PublishedAt time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	IsDeleted   bool
 	Comments    []*Comment
 }
 
@@ -38,4 +39,9 @@ func (t *Tutorial) AddComment(content string) *Comment {
 	comment := NewComment(content, t.Id)
 	t.Comments = append(t.Comments, comment)
 	return comment
+}
+
+func (t *Tutorial) SoftDelete() {
+	t.IsDeleted = true
+	t.UpdatedAt = time.Now()
 }

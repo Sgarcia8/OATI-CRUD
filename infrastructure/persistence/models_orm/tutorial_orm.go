@@ -9,6 +9,7 @@ type TutorialORM struct {
 	PublishedAt time.Time      `orm:"type(datetime)"`
 	CreatedAt   time.Time      `orm:"auto_now_add;type(datetime)"`
 	UpdatedAt   time.Time      `orm:"auto_now;type(datetime)"`
+	IsDeleted   bool           `orm:"column(is_deleted);default(false)"`
 	Comments    []*CommentORM  `orm:"reverse(many)"`
 }
 

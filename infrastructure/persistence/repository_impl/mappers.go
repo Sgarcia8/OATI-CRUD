@@ -12,6 +12,7 @@ func toCommentORM(c *domain.Comment) *models_orm.CommentORM {
 		Tutorial:  &models_orm.TutorialORM{Id: c.TutorialId},
 		CreatedAt: c.CreatedAt,
 		UpdatedAt: c.UpdatedAt,
+		IsDeleted: c.IsDeleted,
 	}
 }
 
@@ -26,6 +27,7 @@ func toCommentDomain(c *models_orm.CommentORM) *domain.Comment {
 		TutorialId: tutorialId,
 		CreatedAt:  c.CreatedAt,
 		UpdatedAt:  c.UpdatedAt,
+		IsDeleted:  c.IsDeleted,
 	}
 }
 
@@ -45,6 +47,7 @@ func toTutorialORM(t *domain.Tutorial) *models_orm.TutorialORM {
 		PublishedAt: t.PublishedAt,
 		CreatedAt:   t.CreatedAt,
 		UpdatedAt:   t.UpdatedAt,
+		IsDeleted:   t.IsDeleted,
 	}
 }
 
@@ -56,6 +59,7 @@ func toTutorialDomain(t *models_orm.TutorialORM) *domain.Tutorial {
 		PublishedAt: t.PublishedAt,
 		CreatedAt:   t.CreatedAt,
 		UpdatedAt:   t.UpdatedAt,
+		IsDeleted:   t.IsDeleted,
 	}
 	if len(t.Comments) > 0 {
 		tutorial.Comments = toCommentDomainList(t.Comments)

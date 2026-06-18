@@ -19,6 +19,7 @@ func (r *CommentRepositoryImpl) GetByTutorialId(tutorialId int) ([]*domain.Comme
 	var ormList []*models_orm.CommentORM
 	_, err := r.ormer.QueryTable(&models_orm.CommentORM{}).
 		Filter("Tutorial__Id", tutorialId).
+		Filter("IsDeleted", false).
 		RelatedSel().
 		All(&ormList)
 	if err != nil {
@@ -28,8 +29,11 @@ func (r *CommentRepositoryImpl) GetByTutorialId(tutorialId int) ([]*domain.Comme
 }
 
 func (r *CommentRepositoryImpl) GetById(id int) (*domain.Comment, error) {
-	ormComment := &models_orm.CommentORM{Id: id}
-	err := r.ormer.Read(ormComment)
+	ormComment := &models_orm.CommentORM{}
+	err := r.ormer.QueryTable(&models_orm.CommentORM{}).
+		Filter("Id", id).
+		Filter("IsDeleted", false).
+		One(ormComment)
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +57,22 @@ func (r *CommentRepositoryImpl) Update(comment *domain.Comment) error {
 }
 
 func (r *CommentRepositoryImpl) Delete(id int) error {
-	_, err := r.ormer.Delete(&models_orm.CommentORM{Id: id})
+	comment, err := r.GetById(id)
+	if err != nil {
+		return err
+	}
+	comment.SoftDelete()
+	ormComment := toCommentORM(comment)
+	_, err = r.ormer.Update(ormComment, "IsDeleted", "UpdatedAt")
+	return err
+}
+
+func (r *CommentRepositoryImpl) SoftDeleteByTutorialId(tutorialId int) error {
+	_, err := r.ormer.QueryTable(&models_orm.CommentORM{}).
+		Filter("Tutorial__Id", tutorialId).
+		Filter("IsDeleted", false).
+		Update(orm.Params{
+			"IsDeleted": true,
+		})
 	return err
 }
