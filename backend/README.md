@@ -8,6 +8,7 @@ API REST para gestión de tutoriales y comentarios, construida con **Go 1.26**, 
 |---|---|
 | API (Render) | https://oati-crud.onrender.com |
 | Swagger (Render) | https://oati-crud.onrender.com/swagger/ |
+| Frontend (Render) | https://oati-crud-front.onrender.com |
 
 ## Stack tecnológico
 
