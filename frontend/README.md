@@ -2,6 +2,12 @@
 
 SPA Angular 22 para consumir la API OATI-CRUD (tutoriales y comentarios).
 
+## Despliegue
+
+Aplicación en producción (Render): **https://oati-crud-front.onrender.com**
+
+API del backend: https://oati-crud.onrender.com/api/v1
+
 ## Integración con backend
 
 1. Levantar el backend:

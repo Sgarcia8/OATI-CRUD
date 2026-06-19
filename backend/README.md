@@ -2,6 +2,14 @@
 
 API REST para gestión de tutoriales y comentarios, construida con **Go 1.26**, **Beego v2** y **PostgreSQL**. Incluye documentación Swagger, contenedorización con Docker y eliminación lógica (soft delete).
 
+## Despliegue
+
+| Recurso | URL |
+|---|---|
+| API (Render) | https://oati-crud.onrender.com |
+| Swagger (Render) | https://oati-crud.onrender.com/swagger/ |
+| Frontend (Render) | https://oati-crud-front.onrender.com |
+
 ## Stack
 
 - Go 1.26
@@ -247,11 +255,14 @@ ORDER BY t.id, c.id;
 
 ## Swagger
 
-Con la app en modo `dev`, la documentación interactiva está disponible en:
+Documentación interactiva (OpenAPI 2.0):
 
-```
-http://localhost:8080/swagger/
-```
+| Entorno | URL |
+|---|---|
+| Producción (Render) | https://oati-crud.onrender.com/swagger/ |
+| Local / Docker | http://localhost:8080/swagger/ |
+
+Disponible cuando la app está en modo `dev` (configuración por defecto en local y en el despliegue actual).
 
 ### Regenerar documentación
 
