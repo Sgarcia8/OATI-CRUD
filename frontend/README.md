@@ -1,123 +1,103 @@
 # FrontOati
 
-SPA Angular 22 para consumir la API OATI-CRUD (tutoriales y comentarios).
+SPA Angular 22 para gestionar tutoriales y comentarios. Consume la API REST documentada en [`../backend/README.md`](../backend/README.md).
 
 ## Despliegue
 
-Aplicación en producción (Render): **https://oati-crud-front.onrender.com**
+Aplicación en producción: **https://oati-crud-front.onrender.com**
 
-API del backend: https://oati-crud.onrender.com/api/v1
+## Stack tecnológico
 
-## Integración con backend
+- Angular 22 (standalone components, lazy loading)
+- TypeScript
+- Tailwind CSS 4
+- nginx (contenedor Docker de producción)
 
-1. Levantar el backend:
+## Estructura del proyecto
 
-```bash
-cd backend && docker compose up --build
+```
+src/app/
+├── core/
+│   ├── models/          # Tipos Tutorial, Comment y errores de API
+│   ├── services/        # TutorialService, CommentService
+│   └── utils/           # Formateo de fechas y errores HTTP
+├── features/tutorials/
+│   ├── tutorial-list/   # Listado con acciones CRUD
+│   ├── tutorial-form/   # Crear y editar tutorial
+│   └── tutorial-detail/ # Detalle con comentarios anidados
+└── shared/components/   # Header, spinner, alertas, diálogo de confirmación
 ```
 
-2. Instalar dependencias del frontend:
+## Rutas
+
+| Ruta | Pantalla |
+|---|---|
+| `/tutorials` | Listado de tutoriales |
+| `/tutorials/new` | Crear tutorial |
+| `/tutorials/:id` | Detalle con comentarios |
+| `/tutorials/:id/edit` | Editar tutorial |
+
+## Configuración de la API
+
+La URL base se define por entorno:
+
+| Archivo | Uso | Valor por defecto |
+|---|---|---|
+| `src/environments/environment.ts` | Desarrollo | `http://localhost:8080/api/v1` |
+| `src/environments/environment.prod.ts` | Producción | `https://oati-crud.onrender.com/api/v1` |
+
+Los servicios en `core/services/` leen `environment.apiUrl` para todas las peticiones HTTP.
+
+## Desarrollo local
+
+Requisitos: Node.js 22+ y npm.
 
 ```bash
-cd frontend && npm install
-```
-
-3. Iniciar el servidor de desarrollo:
-
-```bash
+npm install
 npm start
 ```
 
-La app queda disponible en `http://localhost:4200` y consume la API en `http://localhost:8080/api/v1` (configurable en `src/environments/environment.ts`).
+La app queda en **http://localhost:4200**. Para que el CRUD funcione, la API debe estar disponible en la URL configurada en `environment.ts` (consulta [`../backend/README.md`](../backend/README.md) para levantarla).
 
-### Flujo de prueba manual
+### Flujo manual
 
-1. Abrir `http://localhost:4200/tutorials`
-2. Crear un tutorial con título, descripción y fecha de publicación
-3. Ver el detalle y agregar comentarios
-4. Editar y eliminar comentarios
-5. Editar y eliminar el tutorial desde listado o detalle
+1. Ir a `/tutorials`
+2. Crear un tutorial (título, descripción, fecha de publicación)
+3. Abrir el detalle y gestionar comentarios
+4. Editar o eliminar desde listado o detalle
 
-Si el backend no está activo, la UI muestra un mensaje de error de conexión.
+Si la API no responde, la interfaz muestra un banner de error de conexión.
 
 ## Docker
 
-El frontend tiene su propio `docker-compose.yml`. El backend debe estar activo por separado.
-
-1. Levantar el backend (en otra terminal):
+Build multi-etapa (Node + nginx) con enrutamiento SPA vía `try_files`:
 
 ```bash
-cd backend && docker compose up --build -d
+docker compose up --build
 ```
 
-2. Construir y levantar el frontend:
+Abrir **http://localhost:4200**. El contenedor sirve el build de producción; la API debe estar accesible desde el navegador en el host (por defecto `http://localhost:8080/api/v1`).
 
-```bash
-cd frontend && docker compose up --build
-```
-
-3. Abrir `http://localhost:4200`
-
-La imagen usa **nginx** para servir el build de producción. El navegador consume la API en `http://localhost:8080/api/v1` (puerto mapeado del backend en el host).
-
-Para detener el frontend:
+Detener:
 
 ```bash
 docker compose down
 ```
 
-## Development server
-
-To start a local development server, run:
+## Compilación
 
 ```bash
-ng serve
+npm run build
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Salida en `dist/`. Para despliegues estáticos (Render, S3, etc.), usar el contenido de `dist/front-oati/browser/`.
 
-## Code scaffolding
+En Render, configurar una regla de reescritura `/*` → `/index.html` para que las rutas del SPA funcionen al recargar la página.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Pruebas
 
 ```bash
-ng generate component component-name
+npm test
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Incluye una prueba básica de arranque en `app.spec.ts`.

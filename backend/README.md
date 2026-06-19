@@ -1,6 +1,6 @@
 # OATI-CRUD
 
-API REST para gestión de tutoriales y comentarios, construida con **Go 1.26**, **Beego v2** y **PostgreSQL**. Incluye documentación Swagger, contenedorización con Docker y eliminación lógica (soft delete).
+API REST para gestión de tutoriales y comentarios, construida con **Go 1.26**, **Beego v2** y **PostgreSQL**. Incluye documentación Swagger, contenedorización con Docker y eliminación lógica.
 
 ## Despliegue
 
@@ -8,9 +8,8 @@ API REST para gestión de tutoriales y comentarios, construida con **Go 1.26**, 
 |---|---|
 | API (Render) | https://oati-crud.onrender.com |
 | Swagger (Render) | https://oati-crud.onrender.com/swagger/ |
-| Frontend (Render) | https://oati-crud-front.onrender.com |
 
-## Stack
+## Stack tecnológico
 
 - Go 1.26
 - [Beego v2](https://beego.me/) — framework web
@@ -21,27 +20,27 @@ API REST para gestión de tutoriales y comentarios, construida con **Go 1.26**, 
 
 ## Arquitectura
 
-El proyecto sigue **Clean Architecture** con separación de capas:
+El proyecto sigue **arquitectura limpia (Clean Architecture)** con separación de capas:
 
 ```mermaid
 flowchart TB
     subgraph api [API]
-        Controllers
+        Controladores
         DTOs
     end
     subgraph app [Aplicación]
-        Services
-        Domain
+        Servicios
+        Dominio
     end
     subgraph infra [Infraestructura]
-        Repositories
+        Repositorios
         ORM
         PostgreSQL
     end
-    Controllers --> Services
-    Services --> Domain
-    Services --> Repositories
-    Repositories --> ORM
+    Controladores --> Servicios
+    Servicios --> Dominio
+    Servicios --> Repositorios
+    Repositorios --> ORM
     ORM --> PostgreSQL
 ```
 
@@ -51,15 +50,15 @@ flowchart TB
 | `services/` | Lógica de negocio |
 | `domain/` | Entidades y reglas de dominio |
 | `repositories/` | Interfaces de persistencia |
-| `infrastructure/` | ORM, conexión DB, implementación de repos |
-| `dtos/` | Request/Response JSON |
+| `infrastructure/` | ORM, conexión a la base de datos, implementación de repositorios |
+| `dtos/` | Peticiones y respuestas JSON |
 | `routers/` | Rutas Beego con namespace `/api/v1` |
-| `swagger/` | Especificación OpenAPI + UI interactiva |
+| `swagger/` | Especificación OpenAPI + interfaz interactiva |
 
 ## Modelo de datos
 
 - Un **tutorial** puede tener **N comentarios**.
-- Un **comentario** pertenece a un solo tutorial (FK `tutorial_id`).
+- Un **comentario** pertenece a un solo tutorial (clave foránea `tutorial_id`).
 - Ambas tablas tienen la columna `is_deleted` para **eliminación lógica**.
 - Al eliminar un tutorial, también se marcan como eliminados todos sus comentarios asociados.
 
@@ -67,6 +66,186 @@ flowchart TB
 tutorials (1) ──────< comments (N)
    │                      │
    └── is_deleted         └── is_deleted
+```
+
+## Diagrama de clases
+
+Diagrama simplificado de las capas principales del backend: dominio, DTOs, servicios, repositorios, ORM y controladores.
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace Dominio {
+        class Tutorial {
+            +int Id
+            +string Title
+            +string Description
+            +time.Time PublishedAt
+            +time.Time CreatedAt
+            +time.Time UpdatedAt
+            +bool IsDeleted
+            +Comment[] Comments
+            +NewTutorial()
+            +Update()
+            +IsValid()
+            +AddComment()
+            +SoftDelete()
+        }
+        class Comment {
+            +int Id
+            +string Content
+            +int TutorialId
+            +time.Time CreatedAt
+            +time.Time UpdatedAt
+            +bool IsDeleted
+            +NewComment()
+            +Update()
+            +IsValid()
+            +SoftDelete()
+        }
+    }
+
+    namespace DTOs {
+        class CreateTutorialRequest {
+            +string Title
+            +string Description
+            +string PublishedAt
+        }
+        class UpdateTutorialRequest {
+            +string Title
+            +string Description
+            +string PublishedAt
+        }
+        class TutorialResponse {
+            +int Id
+            +string Title
+            +string Description
+            +time.Time PublishedAt
+            +time.Time CreatedAt
+            +time.Time UpdatedAt
+        }
+        class TutorialDetailResponse {
+            +int Id
+            +CommentResponse[] Comments
+        }
+        class CreateCommentRequest {
+            +string Content
+        }
+        class CommentResponse {
+            +int Id
+            +string Content
+            +int TutorialId
+            +time.Time CreatedAt
+            +time.Time UpdatedAt
+        }
+    }
+
+    namespace Servicios {
+        class TutorialService {
+            -TutorialRepository repo
+            +GetAll()
+            +GetById()
+            +Create()
+            +Update()
+            +Delete()
+        }
+        class CommentService {
+            -CommentRepository commentRepo
+            -TutorialRepository tutorialRepo
+            +GetByTutorialId()
+            +Create()
+            +Update()
+            +Delete()
+        }
+    }
+
+    namespace Repositorios {
+        class TutorialRepository {
+            <<interfaz>>
+            +GetAll()
+            +GetById()
+            +Create()
+            +Update()
+            +Delete()
+        }
+        class CommentRepository {
+            <<interfaz>>
+            +GetByTutorialId()
+            +GetById()
+            +Create()
+            +Update()
+            +Delete()
+            +SoftDeleteByTutorialId()
+        }
+        class TutorialRepositoryImpl {
+            -Ormer orm
+        }
+        class CommentRepositoryImpl {
+            -Ormer orm
+        }
+    }
+
+    namespace ORM {
+        class TutorialORM {
+            +int Id
+            +string Title
+            +string Description
+            +time.Time PublishedAt
+            +CommentORM[] Comments
+            +bool IsDeleted
+        }
+        class CommentORM {
+            +int Id
+            +string Content
+            +TutorialORM Tutorial
+            +bool IsDeleted
+        }
+    }
+
+    namespace Controladores {
+        class TutorialController {
+            -TutorialService service
+            +GetAll()
+            +GetById()
+            +Create()
+            +Update()
+            +Delete()
+        }
+        class CommentController {
+            -CommentService service
+            +GetByTutorialId()
+            +Create()
+            +Update()
+            +Delete()
+        }
+    }
+
+    Tutorial "1" --> "*" Comment : comentarios
+
+    TutorialController --> TutorialService : usa
+    TutorialController ..> CreateTutorialRequest : recibe
+    TutorialController ..> TutorialResponse : devuelve
+    TutorialController ..> TutorialDetailResponse : devuelve
+
+    CommentController --> CommentService : usa
+    CommentController ..> CreateCommentRequest : recibe
+    CommentController ..> CommentResponse : devuelve
+
+    TutorialService --> TutorialRepository : persiste
+    CommentService --> CommentRepository : persiste
+    CommentService --> TutorialRepository : valida tutorial
+
+    TutorialRepositoryImpl ..|> TutorialRepository : implementa
+    CommentRepositoryImpl ..|> CommentRepository : implementa
+
+    TutorialRepositoryImpl ..> TutorialORM : mapea
+    CommentRepositoryImpl ..> CommentORM : mapea
+    TutorialRepositoryImpl ..> Tutorial : devuelve
+    CommentRepositoryImpl ..> Comment : devuelve
+
+    TutorialORM "1" --> "*" CommentORM : clave foránea tutorial_id
+    TutorialDetailResponse --> CommentResponse : incluye
 ```
 
 ## Requisitos previos
@@ -91,7 +270,7 @@ cp .env.example .env
 | `DB_USER` | `postgres` | `postgres` |
 | `DB_PASS` | `postgres` | `postgres` |
 | `DB_SSLMODE` | `disable` | `disable` |
-| `CORS_ALLOWED_ORIGINS` | ver `.env.example` | `http://localhost:3000` (solo aplica en prod) |
+| `CORS_ALLOWED_ORIGINS` | ver `.env.example` | `http://localhost:4200` (solo aplica en producción) |
 
 En Docker, las variables se definen en `docker-compose.yml` — no necesitas un archivo `.env` dentro del contenedor.
 
@@ -105,7 +284,6 @@ docker compose up --build
 |---|---|
 | API | http://localhost:8080 |
 | Swagger | http://localhost:8080/swagger/ |
-| Frontend (Docker) | http://localhost:4200 — ver `frontend/docker-compose.yml` |
 
 Detener los contenedores:
 
@@ -139,7 +317,7 @@ La API estará disponible en http://localhost:8080.
 
 ## Endpoints de la API
 
-Base path: `/api/v1`
+Ruta base: `/api/v1`
 
 | Método | Ruta | Descripción | Respuesta |
 |---|---|---|---|
@@ -147,11 +325,11 @@ Base path: `/api/v1`
 | POST | `/tutorials` | Crear tutorial | `TutorialResponse` |
 | GET | `/tutorials/:id` | Detalle con comentarios anidados | `TutorialDetailResponse` |
 | PUT | `/tutorials/:id` | Actualizar tutorial | `TutorialResponse` |
-| DELETE | `/tutorials/:id` | Soft delete del tutorial y sus comentarios | 204 |
+| DELETE | `/tutorials/:id` | Eliminación lógica del tutorial y sus comentarios | 204 |
 | GET | `/tutorials/:tutorialId/comments` | Listar comentarios de un tutorial | `CommentListResponse` |
 | POST | `/tutorials/:tutorialId/comments` | Crear comentario | `CommentResponse` |
 | PUT | `/comments/:id` | Actualizar comentario | `CommentResponse` |
-| DELETE | `/comments/:id` | Soft delete de un comentario | 204 |
+| DELETE | `/comments/:id` | Eliminación lógica de un comentario | 204 |
 
 ## Ejemplos de uso
 
@@ -215,7 +393,7 @@ curl -X DELETE http://localhost:8080/api/v1/tutorials/1
 
 Tras eliminar, un `GET` sobre el recurso devuelve `404`.
 
-## Eliminación lógica (soft delete)
+## Eliminación lógica
 
 Los registros **no se borran físicamente** de la base de datos. En su lugar, la columna `is_deleted` se marca como `true`.
 
@@ -266,48 +444,39 @@ Disponible cuando la app está en modo `dev` (configuración por defecto en loca
 
 ### Regenerar documentación
 
-Tras modificar anotaciones `@router` o `@Param` en los controllers:
+Tras modificar anotaciones `@router` o `@Param` en los controladores:
 
 ```bash
 go run github.com/beego/bee/v2@latest generate routers
 go run github.com/beego/bee/v2@latest generate docs
 ```
 
-> **Importante:** `routers/commentsRouter.go` es generado por `bee generate routers` y es necesario para que las rutas funcionen. En Docker, esto se ejecuta automáticamente durante el build (ver `Dockerfile`).
+> **Importante:** `routers/commentsRouter.go` es generado por `bee generate routers` y es necesario para que las rutas funcionen. En Docker, esto se ejecuta automáticamente durante la compilación de la imagen (ver `Dockerfile`).
 
-Los DTOs de request incluyen tags `example` y `description` que se reflejan en la UI de Swagger.
+Los DTOs de petición incluyen etiquetas `example` y `description` que se reflejan en la interfaz de Swagger.
 
 ## CORS
 
-La API incluye un filter CORS (`middleware/cors.go`) para permitir peticiones desde frontends en otro origen.
+La API incluye un filtro CORS (`middleware/cors.go`) para permitir peticiones desde clientes en otro origen.
 
 | Modo | Comportamiento |
 |---|---|
 | `dev` (`runmode=dev`) | Permite cualquier origen (`Access-Control-Allow-Origin: *`) |
-| `prod` | Solo orígenes listados en `CORS_ALLOWED_ORIGINS` |
+| `prod` (`runmode=prod`) | Solo orígenes listados en `CORS_ALLOWED_ORIGINS` |
 
 Variable de entorno (producción):
 
 ```env
-CORS_ALLOWED_ORIGINS=http://localhost:3000,https://mi-app.com
+CORS_ALLOWED_ORIGINS=http://localhost:4200,https://oati-crud-front.onrender.com
 ```
 
-Si un frontend en otro dominio no puede conectar, el navegador mostrará un error como:
-
-```
-Access to fetch at 'http://localhost:8080/api/v1/tutorials' from origin
-'http://localhost:3000' has been blocked by CORS policy
-```
-
-Verificar preflight con curl:
+Verificar la solicitud preflight con curl:
 
 ```bash
 curl -i -X OPTIONS http://localhost:8080/api/v1/tutorials \
-  -H "Origin: http://localhost:3000" \
+  -H "Origin: http://localhost:4200" \
   -H "Access-Control-Request-Method: POST"
 ```
-
-> **Nota:** Si en el futuro usas JWT con cookies (`credentials: include`), en dev no podrás usar `*` — habría que reflejar el origin concreto. El header `Authorization` ya está incluido en `Allow-Headers` para ese caso.
 
 ## Desarrollo
 
@@ -324,8 +493,8 @@ Archivo `conf/app.conf`:
 | Parámetro | Valor | Descripción |
 |---|---|---|
 | `httpport` | `8080` | Puerto del servidor |
-| `runmode` | `dev` | Modo de ejecución (Swagger activo en dev) |
-| `CopyRequestBody` | `true` | Requerido para leer body JSON en POST/PUT |
+| `runmode` | `dev` | Modo de ejecución (Swagger activo en modo desarrollo) |
+| `CopyRequestBody` | `true` | Requerido para leer el cuerpo JSON en POST/PUT |
 
 ### Migraciones
 
