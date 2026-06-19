@@ -63,190 +63,30 @@ flowchart TB
 - Ambas tablas tienen la columna `is_deleted` para **eliminación lógica**.
 - Al eliminar un tutorial, también se marcan como eliminados todos sus comentarios asociados.
 
-```
-tutorials (1) ──────< comments (N)
-   │                      │
-   └── is_deleted         └── is_deleted
-```
-
-## Diagrama de clases
-
-Diagrama simplificado de las capas principales del backend: dominio, DTOs, servicios, repositorios, ORM y controladores.
+### Diagrama de la base de datos
 
 ```mermaid
-classDiagram
-    direction TB
+erDiagram
+    tutorials ||--o{ comments : "tiene"
 
-    namespace Dominio {
-        class Tutorial {
-            +int Id
-            +string Title
-            +string Description
-            +time.Time PublishedAt
-            +time.Time CreatedAt
-            +time.Time UpdatedAt
-            +bool IsDeleted
-            +Comment[] Comments
-            +NewTutorial()
-            +Update()
-            +IsValid()
-            +AddComment()
-            +SoftDelete()
-        }
-        class Comment {
-            +int Id
-            +string Content
-            +int TutorialId
-            +time.Time CreatedAt
-            +time.Time UpdatedAt
-            +bool IsDeleted
-            +NewComment()
-            +Update()
-            +IsValid()
-            +SoftDelete()
-        }
+    tutorials {
+        int id PK
+        string title
+        text description
+        datetime published_at
+        datetime created_at
+        datetime updated_at
+        bool is_deleted
     }
 
-    namespace DTOs {
-        class CreateTutorialRequest {
-            +string Title
-            +string Description
-            +string PublishedAt
-        }
-        class UpdateTutorialRequest {
-            +string Title
-            +string Description
-            +string PublishedAt
-        }
-        class TutorialResponse {
-            +int Id
-            +string Title
-            +string Description
-            +time.Time PublishedAt
-            +time.Time CreatedAt
-            +time.Time UpdatedAt
-        }
-        class TutorialDetailResponse {
-            +int Id
-            +CommentResponse[] Comments
-        }
-        class CreateCommentRequest {
-            +string Content
-        }
-        class CommentResponse {
-            +int Id
-            +string Content
-            +int TutorialId
-            +time.Time CreatedAt
-            +time.Time UpdatedAt
-        }
+    comments {
+        int id PK
+        text content
+        int tutorial_id FK
+        datetime created_at
+        datetime updated_at
+        bool is_deleted
     }
-
-    namespace Servicios {
-        class TutorialService {
-            -TutorialRepository repo
-            +GetAll()
-            +GetById()
-            +Create()
-            +Update()
-            +Delete()
-        }
-        class CommentService {
-            -CommentRepository commentRepo
-            -TutorialRepository tutorialRepo
-            +GetByTutorialId()
-            +Create()
-            +Update()
-            +Delete()
-        }
-    }
-
-    namespace Repositorios {
-        class TutorialRepository {
-            <<interfaz>>
-            +GetAll()
-            +GetById()
-            +Create()
-            +Update()
-            +Delete()
-        }
-        class CommentRepository {
-            <<interfaz>>
-            +GetByTutorialId()
-            +GetById()
-            +Create()
-            +Update()
-            +Delete()
-            +SoftDeleteByTutorialId()
-        }
-        class TutorialRepositoryImpl {
-            -Ormer orm
-        }
-        class CommentRepositoryImpl {
-            -Ormer orm
-        }
-    }
-
-    namespace ORM {
-        class TutorialORM {
-            +int Id
-            +string Title
-            +string Description
-            +time.Time PublishedAt
-            +CommentORM[] Comments
-            +bool IsDeleted
-        }
-        class CommentORM {
-            +int Id
-            +string Content
-            +TutorialORM Tutorial
-            +bool IsDeleted
-        }
-    }
-
-    namespace Controladores {
-        class TutorialController {
-            -TutorialService service
-            +GetAll()
-            +GetById()
-            +Create()
-            +Update()
-            +Delete()
-        }
-        class CommentController {
-            -CommentService service
-            +GetByTutorialId()
-            +Create()
-            +Update()
-            +Delete()
-        }
-    }
-
-    Tutorial "1" --> "*" Comment : comentarios
-
-    TutorialController --> TutorialService : usa
-    TutorialController ..> CreateTutorialRequest : recibe
-    TutorialController ..> TutorialResponse : devuelve
-    TutorialController ..> TutorialDetailResponse : devuelve
-
-    CommentController --> CommentService : usa
-    CommentController ..> CreateCommentRequest : recibe
-    CommentController ..> CommentResponse : devuelve
-
-    TutorialService --> TutorialRepository : persiste
-    CommentService --> CommentRepository : persiste
-    CommentService --> TutorialRepository : valida tutorial
-
-    TutorialRepositoryImpl ..|> TutorialRepository : implementa
-    CommentRepositoryImpl ..|> CommentRepository : implementa
-
-    TutorialRepositoryImpl ..> TutorialORM : mapea
-    CommentRepositoryImpl ..> CommentORM : mapea
-    TutorialRepositoryImpl ..> Tutorial : devuelve
-    CommentRepositoryImpl ..> Comment : devuelve
-
-    TutorialORM "1" --> "*" CommentORM : clave foránea tutorial_id
-    TutorialDetailResponse --> CommentResponse : incluye
 ```
 
 ## Requisitos previos
