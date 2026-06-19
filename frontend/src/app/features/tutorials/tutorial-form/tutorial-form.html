@@ -1,0 +1,54 @@
+<div class="mx-auto max-w-2xl px-4 py-8">
+  <nav class="mb-4 text-sm text-slate-500">
+    <a routerLink="/tutorials" class="hover:text-indigo-600">Tutoriales</a>
+    <span class="mx-2">/</span>
+    <span class="text-slate-700">{{ breadcrumbTitle() }}</span>
+  </nav>
+
+  <h1 class="text-2xl font-bold text-slate-900">
+    {{ isEditMode() ? 'Editar tutorial' : 'Nuevo tutorial' }}
+  </h1>
+
+  @if (error()) {
+    <app-alert-banner class="mt-4 block" [message]="error()" type="error" (dismissed)="error.set('')" />
+  }
+
+  @if (loading()) {
+    <app-loading-spinner message="Cargando tutorial..." />
+  } @else {
+    <form class="glass-card mt-6 space-y-5 p-6" [formGroup]="form" (ngSubmit)="submit()">
+      <div>
+        <label for="title" class="mb-1 block text-sm font-medium text-slate-700">Título</label>
+        <input id="title" type="text" formControlName="title" class="glass-input" />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <p class="mt-1 text-xs text-red-600">El título es obligatorio</p>
+        }
+      </div>
+
+      <div>
+        <label for="description" class="mb-1 block text-sm font-medium text-slate-700">Descripción</label>
+        <textarea id="description" rows="4" formControlName="description" class="glass-input"></textarea>
+        @if (form.controls.description.touched && form.controls.description.invalid) {
+          <p class="mt-1 text-xs text-red-600">La descripción es obligatoria</p>
+        }
+      </div>
+
+      <div>
+        <label for="published_at" class="mb-1 block text-sm font-medium text-slate-700">Fecha de publicación</label>
+        <input id="published_at" type="datetime-local" formControlName="published_at" class="glass-input" />
+        @if (form.controls.published_at.touched && form.controls.published_at.invalid) {
+          <p class="mt-1 text-xs text-red-600">La fecha es obligatoria</p>
+        }
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="glass-btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear') }}
+        </button>
+        <a routerLink="/tutorials" class="glass-btn px-4 py-2">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  }
+</div>
