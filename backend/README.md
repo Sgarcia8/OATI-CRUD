@@ -83,6 +83,7 @@ cp .env.example .env
 | `DB_USER` | `postgres` | `postgres` |
 | `DB_PASS` | `postgres` | `postgres` |
 | `DB_SSLMODE` | `disable` | `disable` |
+| `CORS_ALLOWED_ORIGINS` | ver `.env.example` | `http://localhost:3000` (solo aplica en prod) |
 
 En Docker, las variables se definen en `docker-compose.yml` — no necesitas un archivo `.env` dentro del contenedor.
 
@@ -96,6 +97,7 @@ docker compose up --build
 |---|---|
 | API | http://localhost:8080 |
 | Swagger | http://localhost:8080/swagger/ |
+| Frontend (Docker) | http://localhost:4200 — ver `frontend/docker-compose.yml` |
 
 Detener los contenedores:
 
@@ -263,6 +265,38 @@ go run github.com/beego/bee/v2@latest generate docs
 > **Importante:** `routers/commentsRouter.go` es generado por `bee generate routers` y es necesario para que las rutas funcionen. En Docker, esto se ejecuta automáticamente durante el build (ver `Dockerfile`).
 
 Los DTOs de request incluyen tags `example` y `description` que se reflejan en la UI de Swagger.
+
+## CORS
+
+La API incluye un filter CORS (`middleware/cors.go`) para permitir peticiones desde frontends en otro origen.
+
+| Modo | Comportamiento |
+|---|---|
+| `dev` (`runmode=dev`) | Permite cualquier origen (`Access-Control-Allow-Origin: *`) |
+| `prod` | Solo orígenes listados en `CORS_ALLOWED_ORIGINS` |
+
+Variable de entorno (producción):
+
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:3000,https://mi-app.com
+```
+
+Si un frontend en otro dominio no puede conectar, el navegador mostrará un error como:
+
+```
+Access to fetch at 'http://localhost:8080/api/v1/tutorials' from origin
+'http://localhost:3000' has been blocked by CORS policy
+```
+
+Verificar preflight con curl:
+
+```bash
+curl -i -X OPTIONS http://localhost:8080/api/v1/tutorials \
+  -H "Origin: http://localhost:3000" \
+  -H "Access-Control-Request-Method: POST"
+```
+
+> **Nota:** Si en el futuro usas JWT con cookies (`credentials: include`), en dev no podrás usar `*` — habría que reflejar el origin concreto. El header `Authorization` ya está incluido en `Allow-Headers` para ese caso.
 
 ## Desarrollo
 

@@ -7,6 +7,7 @@ import (
 	"oati-crud-comentarios/infrastructure/database"
 	"oati-crud-comentarios/infrastructure/persistence/models_orm"
 	"oati-crud-comentarios/infrastructure/persistence/repository_impl"
+	"oati-crud-comentarios/middleware"
 	"oati-crud-comentarios/services"
 	_ "oati-crud-comentarios/routers"
 
@@ -36,6 +37,8 @@ func main() {
 		beego.BConfig.WebConfig.DirectoryIndex = true
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
 	}
+
+	beego.InsertFilter("*", beego.BeforeRouter, middleware.CorsFilter, beego.WithReturnOnOutput(true))
 
 	beego.Run()
 }
